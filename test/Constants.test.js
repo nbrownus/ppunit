@@ -22,12 +22,4 @@ describe('Constants', function () {
         assert.equal(Constants.RESULT.SKIPPED, 5, 'Constants.RESULT.SKIPPED constant changed')
     })
 
-    it('Should have constant test types', function () {
-        assert.equal(Constants.TEST_TYPE.NORMAL, 'normal', 'TEST_TYPE.NORMAL constant changed')
-        assert.equal(Constants.TEST_TYPE.BEFORE_EACH, 'beforeEach', 'TEST_TYPE.BEFORE_EACH constant changed')
-        assert.equal(Constants.TEST_TYPE.AFTER_EACH, 'afterEach', 'TEST_TYPE.AFTER_EACH constant changed')
-        assert.equal(Constants.TEST_TYPE.BEFORE_ALL, 'beforeAll', 'TEST_TYPE.BEFORE_ALL constant changed')
-        assert.equal(Constants.TEST_TYPE.AFTER_ALL, 'afterAll', 'TEST_TYPE.AFTER_ALL constant changed')
-        assert.equal(Constants.TEST_TYPE.ROOT, 'root', 'TEST_TYPE.ROOT constant changed')
-    })
 })
