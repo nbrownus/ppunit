@@ -6,6 +6,7 @@ var PPUnit = require('../')
   , fs = require('fs')
   , dashdash = require('dashdash')
   , reporters = {}
+  , testInterface
 
 var optParser = new dashdash.Parser({
     options: [
@@ -115,6 +116,10 @@ opts.reporter.forEach(function (reporter) {
 
     return new ctor(ppunit, writer)
 })
+
+
+//TODO: Make this configurable
+testInterface = new PPUnit.interfaces.BDD(ppunit.rootSuite, global)
 
 //Setup test files
 var testPaths = opts._args
