@@ -133,7 +133,11 @@ Multiple items can be marked as only, and only those items would be run
 TODO: Explain before/each and after/each only handling
 
 TODO: Explain suite methods
+
 TODO: Explain test methods
+
 TODO: Explain hooks in general
+
 TODO: Explain cli runner
+
 TODO: Explain graphviz stuff
