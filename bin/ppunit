@@ -112,7 +112,7 @@ opts.reporter.forEach(function (reporter) {
 var testPaths = opts._args
   , files = []
 
-var extensions = ['js']
+var extensions = ['test.js']
   , pathRegex = new RegExp('\\.(' + extensions.join('|') + ')$');
 
 if (!testPaths.length) {
