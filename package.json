@@ -10,7 +10,10 @@
       , "bdd"
       , "ppunit"
     ]
-  , "author": "Nathan Brown <nbrown.us@gmail.com>"
+  , "author": {
+        "name": "Nathan Brown"
+      , "email": "nbrown.us@gmail.com"
+    }
   , "repository": {
         "type": "git"
       , "url": "https://github.com/nbrownus/ppunit.git"

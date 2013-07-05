@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/nbrownus/ppunit.png)](http://travis-ci.org/nbrownus/ppunit)
+
 PPUnit is a test framework that supports parallelization and promises, inspired by Mocha.
 
 Currently only supporting a BDD interface but PPUnit can be extended to include more.

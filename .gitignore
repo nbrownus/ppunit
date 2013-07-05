@@ -4,3 +4,4 @@ node_modules
 *.dot
 test.js
 .DS_Store
+coverage
