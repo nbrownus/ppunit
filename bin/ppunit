@@ -1,0 +1,208 @@
+#!/usr/bin/env node
+
+var PPUnit = require('../')
+  , ppunit = new PPUnit()
+  , path = require('path')
+  , fs = require('fs')
+  , dashdash = require('dashdash')
+
+var optParser = new dashdash.Parser({
+    options: [
+        {
+            names: ['help', 'h']
+          , type: 'bool'
+          , help: 'Print this help and exit'
+        }
+      , {
+            names: ['reporter', 'R']
+          , type: 'arrayOfString'
+          , help: 'Specifies one or more reporters to use, defaults to list'
+          , helpArg: '<reporter>[=<path>]'
+          , default: ['list']
+        }
+      , {
+            names: ['timeout', 't']
+          , type: 'integer'
+          , help: 'Sets the default timeout for all tests in milliseconds, defaults to 2000'
+          , helpArg: 'ms'
+          , default: 2000
+        }
+      , {
+            names: ['recursive', 'r']
+          , type: 'bool'
+          , help: 'Whether or not to recurse into test directories, defaults to true'
+          , default: true
+        }
+      , {
+            names: ['reporters']
+          , type: 'bool'
+          , help: 'Shows all built-in reporters and a brief description'
+          , default: false
+        }
+      , {
+            names: ['test-exclusivity', 'T']
+          , type: 'string'
+          , help: 'Sets the root suites test exclusivity which is inherited, defaults to local'
+          , helpArg: 'none|local|global'
+          , default: 'local'
+        }
+    ]
+})
+
+try {
+    var opts = optParser.parse(process.argv)
+} catch (error) {
+    printHelp(error.message)
+}
+
+if (opts.help) {
+    printHelp()
+}
+
+if (opts.reporters) {
+    console.log('Built-in reporters:')
+    Object.keys(PPUnit.reporters).forEach(function (reporter) {
+        if (reporter === 'BaseReporter') {
+            return
+        }
+
+        console.log('    ' + reporter + ': ' + PPUnit.reporters[reporter].description)
+    })
+    process.exit(0)
+}
+
+//Set the default timeout
+ppunit.rootSuite.timeout(opts.timeout)
+
+//Set the default exclusivity level
+var testExclusivity = opts['test_exclusivity'].toUpperCase()
+if (typeof PPUnit.Constants.EXCLUSIVITY[testExclusivity] === 'undefined') {
+    printHelp('Exclusivity must be one of none, local, or global')
+}
+ppunit.rootSuite.testExclusivity = PPUnit.Constants.EXCLUSIVITY[testExclusivity]
+
+//Setup all reporters
+opts.reporter.forEach(function (reporter) {
+    var parts = reporter.split('=')
+      , writer
+      , ctor
+
+    try {
+        ctor = require('../lib/reporters/' + parts[0])
+    } catch (err) {
+        try {
+            ctor = require(parts[0])
+        } catch (err) {}
+    }
+
+    if (typeof ctor !== 'function') {
+        printHelp('invalid reporter "' + reporter + '"')
+    }
+
+    if (parts[1]) {
+        writer = new PPUnit.writers.FileWriter({ path: parts[1] })
+    } else {
+        writer = new PPUnit.writers.ConsoleWriter()
+    }
+
+    return new ctor(ppunit, writer)
+})
+
+//Setup test files
+var testPaths = opts._args
+  , files = []
+
+var extensions = ['js']
+  , pathRegex = new RegExp('\\.(' + extensions.join('|') + ')$');
+
+if (!testPaths.length) {
+    testPaths.push('test')
+}
+
+try {
+    testPaths.forEach(function (testPath) {
+        files = files.concat(lookupFiles(testPath, opts.recursive))
+    })
+} catch (error) {
+    if (error.code === 'ENOENT') {
+        error = 'No such file or directory: ' + error.path
+    } else {
+        error = error.message
+    }
+
+    console.error(error)
+    process.exit(1)
+}
+
+files.forEach(function (filePath) {
+    ppunit.addFile(filePath)
+})
+
+//Run ppunit!
+ppunit.run(function () {
+    process.exit((ppunit.failures.length) ? 1 : 0)
+})
+
+/**
+ * Looks up files within a path, optionally recursively
+ *
+ * @param {String} filePath The file path to search
+ * @param {Boolean} recursive Whether or not to recurse into directories found within a filePath
+ *
+ * @returns {Array.<String>} An array of files found within filePath
+ */
+function lookupFiles (filePath, recursive) {
+    var found = []
+
+    if (!fs.existsSync(filePath)) {
+        filePath += '.js'
+    }
+
+    var stat = fs.statSync(filePath)
+    if (stat.isFile()) {
+        return [filePath]
+    }
+
+    fs.readdirSync(filePath).forEach(function (file) {
+        file = path.join(filePath, file)
+        var stat = fs.statSync(file)
+        if (stat.isDirectory()) {
+            if (recursive) {
+                found = found.concat(lookupFiles(file, recursive))
+            }
+
+            return
+        }
+
+        if (!stat.isFile() || !pathRegex.test(file) || path.basename(file)[0] == '.') {
+            return
+        }
+
+        found.push(file)
+    })
+
+    return found
+}
+
+/**
+ * Prints the help and optionally an error
+ *
+ * @param {String} [error] An error message to print before the help
+ */
+function printHelp (error) {
+    var status = 0
+
+    if (error) {
+        console.error(error)
+        console.log()
+        status = 1
+    }
+    var width = (process.stdout.getWindowSize) ? process.stdout.getWindowSize()[0] : 120
+
+    //TODO: need $0
+    console.log('Usage: ppunit [OPTIONS] [<files/directories>...]\n')
+    console.log('Options:')
+    console.log(optParser.help({ includeEnv: true, maxCol: width }).trimRight())
+
+    process.exit(status)
+}

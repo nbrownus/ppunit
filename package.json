@@ -1,0 +1,31 @@
+{
+    "name": "PPUnit"
+  , "version": "0.0.1"
+  , "description": "Test framework that supports parallelization and promises"
+  , "keywords": [
+        "test"
+      , "unit"
+      , "promise"
+      , "parellelization"
+      , "bdd"
+      , "ppunit"
+    ]
+  , "author": "Nathan Brown <nbrown.us@gmail.com>"
+  , "bin": {
+        "ppunit": "./bin/ppunit"
+  }
+  , "main": "./index"
+  , "license": "MIT"
+  , "engines": {
+        "node": ">= 0.8.x"
+    }
+  , "dependencies": {
+        "mkdirp": "0.3.5"
+      , "diff": "1.0.5"
+      , "dashdash": "1.3.2"
+    }
+  , "devDependencies": {
+        "istanbul": "0.1.x"
+      , "mocha": "x"
+    }
+}
