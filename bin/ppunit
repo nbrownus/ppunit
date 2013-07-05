@@ -5,6 +5,7 @@ var PPUnit = require('../')
   , path = require('path')
   , fs = require('fs')
   , dashdash = require('dashdash')
+  , reporters = {}
 
 var optParser = new dashdash.Parser({
     options: [
@@ -59,14 +60,19 @@ if (opts.help) {
     printHelp()
 }
 
+//Build a list of reporter lower case names to actual names
+Object.keys(PPUnit.reporters).forEach(function (reporter) {
+    if (reporter !== 'BaseReporter') {
+        reporters[reporter.toLowerCase()] = reporter
+    }
+})
+
 if (opts.reporters) {
     console.log('Built-in reporters:')
     Object.keys(PPUnit.reporters).forEach(function (reporter) {
-        if (reporter === 'BaseReporter') {
-            return
+        if (reporter !== 'BaseReporter') {
+            console.log('    ' + reporter + ': ' + PPUnit.reporters[reporter].description)
         }
-
-        console.log('    ' + reporter + ': ' + PPUnit.reporters[reporter].description)
     })
     process.exit(0)
 }
@@ -87,16 +93,18 @@ opts.reporter.forEach(function (reporter) {
       , writer
       , ctor
 
-    try {
-        ctor = require('../lib/reporters/' + parts[0])
-    } catch (err) {
+    //Look for our own reporter first
+    if (reporters[parts[0]]) {
+        reporter = reporters[parts[0]]
+        ctor = PPUnit.reporters[reporter]
+
+    //See if it's an external module
+    } else {
         try {
             ctor = require(parts[0])
-        } catch (err) {}
-    }
-
-    if (typeof ctor !== 'function') {
-        printHelp('invalid reporter "' + reporter + '"')
+        } catch (err) {
+            printHelp('invalid reporter "' + reporter + '"')
+        }
     }
 
     if (parts[1]) {
