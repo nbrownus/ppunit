@@ -10,6 +10,5 @@ describe('index.js', function () {
         assert(typeof PPUnit.Test === 'function', 'PPUnit.Test is not exported correctly')
         assert(typeof PPUnit.Suite === 'function', 'PPUnit.Suite is not exported correctly')
         assert(typeof PPUnit.Colors === 'object', 'PPUnit.Colors is not exported correctly')
-        assert(typeof PPUnit.Constants === 'object', 'PPUnit.Constants is not exported correctly')
     })
 })

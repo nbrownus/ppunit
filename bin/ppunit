@@ -76,10 +76,10 @@ ppunit.rootSuite.timeout(opts.timeout)
 
 //Set the default exclusivity level
 var testExclusivity = opts['test_exclusivity'].toUpperCase()
-if (typeof PPUnit.Constants.EXCLUSIVITY[testExclusivity] === 'undefined') {
+if (typeof PPUnit.Test.EXCLUSIVITY[testExclusivity] === 'undefined') {
     printHelp('Exclusivity must be one of none, local, or global')
 }
-ppunit.rootSuite.testExclusivity = PPUnit.Constants.EXCLUSIVITY[testExclusivity]
+ppunit.rootSuite.testExclusivity = PPUnit.Test.EXCLUSIVITY[testExclusivity]
 
 //Setup all reporters
 opts.reporter.forEach(function (reporter) {

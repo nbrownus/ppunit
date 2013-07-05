@@ -1,4 +1,3 @@
-
 var PPUnit = require('../')
   , assert = require('assert')
   , ppunit = new PPUnit()

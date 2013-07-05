@@ -4,7 +4,6 @@ var Test = require('../lib/Test')
 describe('Test', function () {
 
     describe('Constants', function () {
-
         it('Should have constant test types', function () {
             assert.equal(Test.TYPE.NORMAL, 'normal', 'Test.TYPE.NORMAL constant changed')
             assert.equal(Test.TYPE.BEFORE_EACH, 'beforeEach', 'Test.TYPE.BEFORE_EACH constant changed')
@@ -26,6 +25,12 @@ describe('Test', function () {
             assert.equal(Test.RESULT.TIMEOUT, 3, 'Test.RESULT.TIMEOUT constant changed')
             assert.equal(Test.RESULT.HOOK_FAILURE, 4, 'Test.RESULT.HOOK_FAILURE constant changed')
             assert.equal(Test.RESULT.SKIPPED, 5, 'Test.RESULT.SKIPPED constant changed')
+        })
+
+        it('Should have constant exclusivities', function () {
+            assert.equal(Test.EXCLUSIVITY.NONE, 0, 'Test.EXCLUSIVITY.NONE constant changed')
+            assert.equal(Test.EXCLUSIVITY.LOCAL, 1, 'Test.EXCLUSIVITY.LOCAL constant changed')
+            assert.equal(Test.EXCLUSIVITY.GLOBAL, 2, 'Test.EXCLUSIVITY.GLOBAL constant changed')
         })
     })
 
