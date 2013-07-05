@@ -26,6 +26,9 @@
   , "engines": {
         "node": ">= 0.8.x"
     }
+  , "scripts": {
+        "test": "make test"
+    }
   , "dependencies": {
         "mkdirp": "0.3.5"
       , "diff": "1.0.5"
