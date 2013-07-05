@@ -11,9 +11,13 @@
       , "ppunit"
     ]
   , "author": "Nathan Brown <nbrown.us@gmail.com>"
+  , "repository": {
+        "type": "git"
+      , "url": "https://github.com/nbrownus/ppunit.git"
+    }
   , "bin": {
         "ppunit": "./bin/ppunit"
-  }
+    }
   , "main": "./index"
   , "license": "MIT"
   , "engines": {
