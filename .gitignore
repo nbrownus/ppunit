@@ -4,3 +4,5 @@ node_modules
 *.dot
 .DS_Store
 coverage
+graph.svg
+test.js
