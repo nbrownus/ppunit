@@ -35,12 +35,6 @@ var optParser = new dashdash.Parser({
           , default: true
         }
       , {
-            names: ['reporters']
-          , type: 'bool'
-          , help: 'Shows all built-in reporters and a brief description'
-          , default: false
-        }
-      , {
             names: ['test-exclusivity', 'T']
           , type: 'string'
           , help: 'Sets the root suites test exclusivity which is inherited, defaults to local'
@@ -52,6 +46,12 @@ var optParser = new dashdash.Parser({
           , type: 'integer'
           , help: 'Maximum number of tests that can run in parallel, defaults to -1 (infinite)'
           , default: -1
+        }
+      , {
+            names: ['reporters']
+          , type: 'bool'
+          , help: 'Shows all built-in reporters and a brief description'
+          , default: false
         }
     ]
 })
