@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var PPUnit = require('../')
-  , ppunit = new PPUnit()
   , path = require('path')
   , fs = require('fs')
   , dashdash = require('dashdash')
@@ -48,6 +47,12 @@ var optParser = new dashdash.Parser({
           , helpArg: 'none|local|global'
           , default: 'local'
         }
+      , {
+            names: ['concurrency', 'c']
+          , type: 'integer'
+          , help: 'Maximum number of tests that can run in parallel, defaults to -1 (infinite)'
+          , default: -1
+        }
     ]
 })
 
@@ -77,6 +82,8 @@ if (opts.reporters) {
     })
     process.exit(0)
 }
+
+var ppunit = new PPUnit(opts)
 
 //Set the default timeout
 ppunit.rootSuite.timeout(opts.timeout)
