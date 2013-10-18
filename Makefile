@@ -1,7 +1,7 @@
 all: test
 
 test: sanity
-	NODE_ENV=test ./bin/ppunit -R list -R graphviz=graph.dot test/
+	NODE_ENV=test ./bin/ppunit -R list -R dependencies=graph.dot test/
 
 test-cov: sanity
 	NODE_ENV=test node node_modules/istanbul/lib/cli.js --print=detail cover \
