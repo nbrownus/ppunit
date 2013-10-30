@@ -1,0 +1,269 @@
+<html>
+<head>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: #eeeeee;
+        }
+        #timeline-container {
+            font-family: arial, "Sans-serif";
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+            border-bottom: 1px solid;
+        }
+
+        #col {
+            float: left;
+            background-color:white;
+            padding: 0 10px 0 10px;
+            border-right: 1px solid;
+
+            white-space: nowrap;
+            margin: 0;
+            position:relative;
+            left: 0;
+            z-index: 10;
+        }
+
+        #col span {
+            display: inline-block;
+            padding: 2px 0 2px 0;
+            margin: 2px 0 3px 0;
+        }
+
+        #header {
+            position:relative;
+            background-color:white;
+            border-bottom: 1px solid;
+            top: 0;
+            white-space: nowrap;
+            margin: 0;
+            z-index: 9;
+        }
+
+        #header .label {
+            display: inline-block;
+            padding: 5px 4px 4px 8px;
+            margin: 0 3px 0 0;
+        }
+
+        #header .hr {
+            background-color:red;
+            height: 1px;
+        }
+
+        #tasks .task {
+            position: absolute;
+            padding: 2px;
+            border: 1px solid black;
+            display: inline-block;
+            z-index: 1;
+        }
+
+        .task span {
+            position: relative;
+        }
+
+        .grid {
+            position: absolute;
+            background-color: #cccccc;
+        }
+
+        .outer-grid {
+            position: absolute;
+            background-color: #929292;
+        }
+
+        #tasks .failure {
+            background-color: #FDDAE1;
+        }
+
+        #tasks .skipped {
+            background-color: #D0E4FF;
+        }
+
+        #tasks .success {
+            background-color: #D2FFD0;
+        }
+
+        .col-cover {
+            z-index: 200;
+            background-color: #cccccc;
+            position: fixed;
+        }
+    </style>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="http://www.appelsiini.net/download/jquery.viewport.js"></script>
+    <script>
+        $(document).ready(function () {
+            var $col = $('#col')
+              , $header = $('#header')
+              , $tasks = $('#tasks')
+              , $timeline = $('#timeline-container')
+              , lanes = []
+              , ticks = 0
+              , tickWidth = 0
+              , i
+
+            tasks.sort(function (task1, task2) {
+                return task1.start - task2.start
+            })
+
+            tasks.forEach(function (task, index) {
+                task.id = index
+                $tasks.append(
+                    '<div class="task ' + task.class + '" id="task' + task.id + '"><span>' + task.name + ' (' + task.duration + 'ms)</span></div>'
+                )
+
+                var lane
+                lanes.some(function (testLane) {
+                    if (testLane.end <= task.start) {
+                        return lane = testLane
+                    }
+                })
+
+                //Add a lane if we need to
+                if (!lane) {
+                    lanes.push({ name: 'Lane ' + (lanes.length + 1), end: 0, items: [], id: lanes.length })
+                    lane = lanes[lanes.length - 1]
+                    $col.append('<span id="lane' + lane.id + '">' + lane.name + '</span><br />')
+                }
+
+                //Put the tick headers in
+                for (i = ticks; i < task.end; i++) {
+                    $header.append('<span class="label" id="tick' + i + '">T ' + (i + 1) + '</span>')
+                    //Not using the tick header for this since it's pretty slow
+                    // tickWidth = Math.max(tickWidth, $('#tick' + i).width())
+                }
+
+                ticks = Math.max(ticks, task.end)
+                task.lane = lane
+                lane.items.push(task)
+                lane.end = task.end
+
+                var pos = $('#lane' + lane.id).position()
+                  , $task = $('#task' + task.id)
+
+                tickWidth = Math.max(tickWidth, $task.width() / (task.end - task.start))
+                $task.css({ top: pos.top })
+            })
+
+            //Adjust the row positioning
+            $col.css('padding-top', $('#tick0').outerHeight())
+            $header.css('margin-left', $col.outerWidth())
+            $tasks.css('margin-left', $col.outerWidth())
+
+            //Fix the tick widths for the header and tests
+            for (i = 0; i < ticks; i++) {
+                $('#tick' + i).width(tickWidth)
+            }
+
+            var actualTickWidth = $('#tick0').outerWidth()
+            tasks.forEach(function (task) {
+                var startTick = $('#tick' + task.start)
+                  , lane = $('#lane' + task.lane.id)
+                  , taskSpan = task.end - task.start
+
+                $('#task' + task.id).css({
+                    left: startTick.offset().left
+                  , width: ((actualTickWidth * taskSpan) + (3 * (taskSpan - 2)) - 5) //Account for the tick margins and task padding
+                  , top: lane.offset().top
+                })
+            })
+
+            //Make the horizontal grid lines
+            var colWidth = $col.outerWidth() - 1
+            for (i = 1; i <= lanes.length - 1; i++) {
+                var laneTop = $('#lane' + (i)).offset().top - 2
+                $timeline.append('<div class="grid" id="hgrid' + i + '"></div>')
+
+                $('#hgrid' + i).css({
+                    top: laneTop
+                  , height: 1
+                  , width: $timeline.width()
+                  , left: 0
+                })
+
+                $col.append('<div class="outer-grid" id="col-hgrid' + i + '"></div>')
+
+                $('#col-hgrid' + i).css({
+                    top: laneTop
+                  , height: 1
+                  , width: colWidth
+                  , left: 0
+                })
+            }
+
+            //Make the vertical grid lines
+            var headerHeight = $header.outerHeight() - 1
+            for (i = 1; i < ticks; i++) {
+                var tickLeft = $('#tick' + (i)).offset().left - 3
+                $timeline.append('<div class="grid" id="vgrid' + i + '"></div>')
+
+                $('#vgrid' + i).css({
+                    left: tickLeft
+                  , height: $timeline.height()
+                  , width: 1
+                  , top: 0
+                })
+
+                $header.append('<div class="outer-grid" id="header-vgrid' + i + '"></div>')
+
+                $('#header-vgrid' + i).css({
+                    left: tickLeft - $col.outerWidth()
+                  , height: headerHeight
+                  , width: 1
+                  , top: 0
+                })
+            }
+
+            //Put a cover on the top of the column
+            $col.append('<div class="col-cover"></div>')
+            $('.col-cover').css({
+                height: $header.outerHeight() - 1
+              , width: $col.outerWidth() - 1
+              , top: 0
+              , left: 0
+            })
+
+            var headerPos = $header.offset()
+
+            $(window).scroll(function () {
+                var $window = $(this)
+                  , scrollLeft = $window.scrollLeft()
+                  , scrollTop = $window.scrollTop()
+
+                $('#col').css({ left: (scrollLeft > 0) ? scrollLeft : 0 })
+                $('#header').css({ top: (scrollTop > 0) ? scrollTop : 0 })
+
+                $('.task span').css('left', 0)
+                $('.task:in-viewport').each(function () {
+                    var $this = $(this)
+                      , $span = $this.find('span')
+                      , thisPos = $this.position()
+                      , newPos = (scrollLeft - thisPos.left + headerPos.left)
+
+                    if (newPos < 0) {
+                        newPos = 0
+                    //Account for the task padding
+                    } else if ((newPos + $span.width() + 4) > $this.width()) {
+                        newPos = $this.width() - $span.width() - 4
+                    }
+
+                    $span.css({ left: newPos })
+                })
+            })
+    })
+    //TODO: Long running tests aren't terminating in the correct lane, a padding or margin is screwing it up
+    </script>
+</head>
+<body>
+<div id="timeline-container">
+    <div id="col"></div>
+    <div id="header"></div>
+    <div id="tasks"></div>
+</div>
